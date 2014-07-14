@@ -1,0 +1,7 @@
+<resources>
+
+    <string name="app_name">Secure Remember</string>
+    <string name="no_notes">There aren\'t notes yet</string>
+    <string name="menu_insert">Add Item</string>
+
+</resources>
