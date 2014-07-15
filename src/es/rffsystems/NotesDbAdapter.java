@@ -1,5 +1,6 @@
 /**
- * 
+ * Class to encapsulate data access to a SQLite database that will hold our 
+ * notes data and allow us to update it.
  */
 package es.rffsystems;
 
@@ -13,10 +14,14 @@ import android.util.Log;
 
 /**
  * @author ruben
+ * @date 15-jul-2014
+ * @description Class to encapsulate data access to a SQLite database that will hold our 
+ * notes data and allow us to update it.
  *
  */
 public class NotesDbAdapter {
 
+	//Colums of the table
     public static final String KEY_TITLE = "title";
     public static final String KEY_BODY = "body";
     public static final String KEY_ROWID = "_id";
@@ -123,6 +128,17 @@ public class NotesDbAdapter {
      * @return Cursor over all notes
      */
     public Cursor fetchAllNotes() {
+ 
+    /*
+     * The first field is the name of the database table to query (in this 
+     * case DATABASE_TABLE is "notes"). The next is the list of columns we 
+     * want returned, in this case we want the _id, title and body columns 
+     * so these are specified in the String array. The remaining fields are, 
+     * in order: selection, selectionArgs, groupBy, having and orderBy.
+     * 
+     * Having these all null means we want all data, need no grouping, 
+     * and will take the default order.
+     */
 
         return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_TITLE,
                 KEY_BODY}, null, null, null, null, null);
@@ -137,6 +153,13 @@ public class NotesDbAdapter {
      */
     public Cursor fetchNote(long rowId) throws SQLException {
 
+    	/*
+    	 * The first parameter (set true) indicates that we are interested in 
+    	 * one distinct result. The selection parameter (the fourth parameter) 
+    	 * has been specified to search only for the row "where _id =" the 
+    	 * rowId we passed in.  
+    	 */
+    	
         Cursor mCursor =
 
             mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,

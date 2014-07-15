@@ -20,6 +20,7 @@ import android.widget.SimpleCursorAdapter;
 public class SRemember extends ListActivity {
 	public static final int INSERT_ID = Menu.FIRST;
 	
+	// Used to create numbered note titles.
 	private int mNoteNumber = 1;
 	private NotesDbAdapter mDbHelper;
 	
@@ -63,7 +64,22 @@ public class SRemember extends ListActivity {
         String[] from = new String[] { NotesDbAdapter.KEY_TITLE };
         int[] to = new int[] { R.id.text1 };
         
-        // Now create an array adapter and set it to display using our row
+        // Now create an array adapter and set it to display using our row.
+        
+        /* takes a database Cursor and binds it to fields provided in the layout. 
+         * These fields define the row elements of our list (in this case we use 
+         * the text1 field in our notes_row.xml layout), so this allows us to easily
+         *  populate the list with entries from our database.
+         */
+        
+        /*
+         * To do this we have to provide a mapping from the title field in the returned 
+         * Cursor, to our text1 TextView, which is done by defining two arrays: 
+         * the first a string array with the list of columns to map from (just "title" 
+         * in this case, from the constant NotesDbAdapter.KEY_TITLE) and, the second, 
+         * an int array containing references to the views that we'll bind the data 
+         * into (the R.id.text1 TextView).
+         */
         SimpleCursorAdapter notes =
             new SimpleCursorAdapter(this, R.layout.notes_row, c, from, to);
         setListAdapter(notes);
