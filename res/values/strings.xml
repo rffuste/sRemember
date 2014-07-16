@@ -1,7 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Secure Remember</string>
-    <string name="no_notes">There aren\'t notes yet</string>
-    <string name="menu_insert">Add Item</string>
+    <string name="no_notes">No existen aun notas</string>
+    <string name="menu_insert">Añadir Nota</string>
+    <string name="menu_delete">Borrar Nota</string>
+    <string name="title">Título</string>
+    <string name="body">Texto</string>
+    <string name="confirm">Confirmar</string>
+    <string name="edit_note">Editar Nota</string>
 
 </resources>

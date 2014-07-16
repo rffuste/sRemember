@@ -1,88 +1,170 @@
 /**
- * 
+ * @name SRemember
+ * @date 16/07/14
+ * @description Secure notepad for Android systems Based on: http://developer.android.com/training/notepad/
+ * @filename SRemember.java
  */
 package es.rffsystems;
 
 import es.rffsystems.sremember.R;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Toast;
 
-
-
-/**
- * @author ruben
- *
- */
+// Al tenir una llista a l'acivity principal ha d'extendre de ListActivity
 public class SRemember extends ListActivity {
-	public static final int INSERT_ID = Menu.FIRST;
 	
-	// Used to create numbered note titles.
-	private int mNoteNumber = 1;
-	private NotesDbAdapter mDbHelper;
-	
+	// Constants per a la db
+    private static final int ACTIVITY_CREATE=0;
+    private static final int ACTIVITY_EDIT=1;
+
+    // Constants usades al menu
+    private static final int INSERT_ID = Menu.FIRST;
+    private static final int DELETE_ID = Menu.FIRST + 1;
+
+    // a partir d'aquesta propietat usarem la db
+    private NotesDbAdapter mDbHelper;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notes_list);
+        
+        // creem una instancia i obrir una connexio a la db
         mDbHelper = new NotesDbAdapter(this);
         mDbHelper.open();
+        
+        // anem a buscar les dades i retornem una llista de titols que 
+        // sera el que mostrem
         fillData();
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, INSERT_ID, 0, R.string.menu_insert);
-        return result;
+        
+        // registrem la llista per a poder usar el menu contextual i 
+        // poder esborrar
+        registerForContextMenu(getListView());
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	switch (item.getItemId()) {
-        case INSERT_ID:
-            createNote();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    
-    private void createNote() {
-        String noteName = "Note " + mNoteNumber++;
-        mDbHelper.createNote(noteName, "");
-        fillData();
-    }
-    
+    /*
+     * Anem a buscar totes les notes, i filtrem per titol. 
+     * Retornem nomes aquestes i les ensenyem a la llista usant
+     * el notes_row 
+     */
     private void fillData() {
-        // Get all of the notes from the database and create the item list
-        Cursor c = mDbHelper.fetchAllNotes();
-        startManagingCursor(c);
+        Cursor notesCursor = mDbHelper.fetchAllNotes();
+        startManagingCursor(notesCursor);
 
-        String[] from = new String[] { NotesDbAdapter.KEY_TITLE };
-        int[] to = new int[] { R.id.text1 };
-        
-        // Now create an array adapter and set it to display using our row.
-        
-        /* takes a database Cursor and binds it to fields provided in the layout. 
-         * These fields define the row elements of our list (in this case we use 
-         * the text1 field in our notes_row.xml layout), so this allows us to easily
-         *  populate the list with entries from our database.
-         */
-        
-        /*
-         * To do this we have to provide a mapping from the title field in the returned 
-         * Cursor, to our text1 TextView, which is done by defining two arrays: 
-         * the first a string array with the list of columns to map from (just "title" 
-         * in this case, from the constant NotesDbAdapter.KEY_TITLE) and, the second, 
-         * an int array containing references to the views that we'll bind the data 
-         * into (the R.id.text1 TextView).
-         */
-        SimpleCursorAdapter notes =
-            new SimpleCursorAdapter(this, R.layout.notes_row, c, from, to);
+        // Create an array to specify the fields we want to display in the list (only TITLE)
+        String[] from = new String[]{NotesDbAdapter.KEY_TITLE};
+
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[]{R.id.text1};
+
+        // Now create a simple cursor adapter and set it to display
+        SimpleCursorAdapter notes = 
+            new SimpleCursorAdapter(this, R.layout.notes_row, notesCursor, from, to);
         setListAdapter(notes);
     }
-   
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+        
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    	/*
+    	 * Un cop seleccionem un element del menu el seleccionem 
+    	 * amb un switch
+    	 */
+
+    	int i = item.getItemId();
+    	
+        switch(i) {
+       
+            case  R.id.add:
+            {
+                createNote();
+                return true;
+            }
+            default: 
+            	Toast.makeText(getApplicationContext(), "Not any option", 
+            			   Toast.LENGTH_LONG).show();
+
+        }
+
+        return super.onMenuItemSelected(featureId, item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, DELETE_ID, 0, R.string.menu_delete); // Afegim el delete al menu de contexte de la llista
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+    	/*
+    	 * Quan seleccionem un element del menu contextual comprobem quin es el 
+    	 * element seleccionat.
+    	 */
+        switch(item.getItemId()) {
+            case DELETE_ID:
+            	/*
+            	 * Si es delete, obtenim quin es el element que volem esborrar, 
+            	 * l'esborrem i tornem a pintar les dades
+            	 */
+                AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+                mDbHelper.deleteNote(info.id);
+                fillData();
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    /*
+     * Per crear una activitat creem un intent i cridem al start Activity create 
+     * amb un retorn. 
+     */
+    private void createNote() {
+        Intent i = new Intent(this, NoteEdit.class);
+        startActivityForResult(i, ACTIVITY_CREATE);
+    }
+
+    
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+    	/*
+    	 * Quan clickem un element de la llista creem un nou intent i fem un start 
+    	 * amb un return del activity edit. 
+    	 * Tb afegim un element extra. el id
+    	 */
+        super.onListItemClick(l, v, position, id);
+        Intent i = new Intent(this, NoteEdit.class);
+        i.putExtra(NotesDbAdapter.KEY_ROWID, id);
+        startActivityForResult(i, ACTIVITY_EDIT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	/* 
+    	 * Quan retornem d'alguna activitat sempre repintem la llista amb un fillData
+    	 */
+        super.onActivityResult(requestCode, resultCode, intent);
+        fillData();
+    }
 }
