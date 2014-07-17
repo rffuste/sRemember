@@ -113,6 +113,9 @@ public class SRemember extends ListActivity {
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        
+        // creem un menu contextual desde l'element que clickem
+        // amb el texte del string de delte. 
         menu.add(0, DELETE_ID, 0, R.string.menu_delete); // Afegim el delete al menu de contexte de la llista
     }
 
@@ -121,6 +124,9 @@ public class SRemember extends ListActivity {
     	/*
     	 * Quan seleccionem un element del menu contextual comprobem quin es el 
     	 * element seleccionat.
+    	 * 
+    	 *         
+    	 * TODO: obtenir el valor del titol de la nota i posarlo com a texte afegit 
     	 */
         switch(item.getItemId()) {
             case DELETE_ID:

@@ -18,6 +18,7 @@ public class NoteEdit extends Activity {
 
     private EditText mTitleText;
     private EditText mBodyText;
+
     private Long mRowId;
     private NotesDbAdapter mDbHelper;
 
@@ -39,7 +40,6 @@ public class NoteEdit extends Activity {
         mBodyText = (EditText) findViewById(R.id.body);
 
         Button confirmButton = (Button) findViewById(R.id.confirm);
-
         
         /*
          * max = (a > b) ? a : b;
@@ -71,6 +71,16 @@ public class NoteEdit extends Activity {
             }
 
         });
+
+        /*
+         * Si al començar una activitat el focus el te un edittext, 
+         * s'obre automaticament el teclat, per evitar-ho per ara
+         * fem focus al botó confirmar. 
+         * 
+         * TODO: Cal reparar aixo. 
+         */
+        confirmButton.setFocusableInTouchMode(true);
+        confirmButton.requestFocus();
     }
 
     /*

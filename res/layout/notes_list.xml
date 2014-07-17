@@ -14,8 +14,8 @@
      	Es col.loca un listview i un textview per quan la llista esta buida. 
       -->
     <ListView android:id="@+id/android:list"
-          android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     
     
   	<TextView android:id="@+id/android:empty"
